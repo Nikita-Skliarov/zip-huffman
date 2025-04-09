@@ -9,11 +9,15 @@ namespace zip
 
     public class Node
     {
+        // Properties
+
         public byte ByteValue;
         public uint Frequency;
         public Node Left;
         public Node Right;
 
+
+        // Constructors
         public Node(byte byteValue, uint frequency)
         {
             ByteValue = byteValue;

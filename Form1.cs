@@ -11,21 +11,21 @@ namespace zip
 
         private void ZipButton_Click(object sender, EventArgs e)
         {
-            byte[] file = Huffman.ReadFile();
-            if (file.Length == 0) return;
+            byte[] file = HuffmanZip.ReadFile();
+            if (file.Length == 0) return; // return if no file is selected or file is empty
 
-            uint[] freq = Huffman.CountBytes(file);
-            var nodeList = Huffman.MakeDLL(freq);
-            Node treeTop = Huffman.MakeTree(nodeList);
-            Dictionary<byte, string> table = Huffman.MakeTable(treeTop);
-            byte[] encodedFile = Huffman.Translate(file, table);
-            byte[] encodedTree = Huffman.SaveTreeToBytes(treeTop);
-            Huffman.WriteEncS(encodedFile, encodedTree);
+            uint[] freq = HuffmanZip.CountBytes(file);
+            List<Node> nodeList = HuffmanZip.MakeDLL(freq);
+            Node treeTop = HuffmanZip.MakeTree(nodeList);
+            Dictionary<byte, string> table = HuffmanZip.MakeTable(treeTop);
+            byte[] encodedFile = HuffmanZip.Translate(file, table);
+            byte[] encodedTree = HuffmanZip.SaveTreeToBytes(treeTop);
+            HuffmanZip.WriteEncS(encodedFile, encodedTree);
         }
 
         private void UnzipButton_Click(object sender, EventArgs e)
         {
-            Huffman.UnzipFile();
+            HuffmanUnzip.UnzipFile();
         }
     }
 }
