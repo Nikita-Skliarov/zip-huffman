@@ -10,26 +10,7 @@ namespace zip
     {
         #region ZIP
 
-        /// <summary>
-        /// Reads a file and returns its byte array.
-        /// </summary>
-        /// <algo>
-        /// 1. Open modal and let user select a file.
-        /// 2. If the user selects a file, read all bytes from the file.
-        /// 3. Return the byte array after reading the file. Otherwise, return an empty byte array.
-        /// </algo>
-        public static byte[] ReadFile()
-        {
-            using (OpenFileDialog ofd = new OpenFileDialog())
-            {
-                ofd.Filter = "Text Files|*.txt|All Files|*.*";
-                if (ofd.ShowDialog() == DialogResult.OK)
-                {
-                    return File.ReadAllBytes(ofd.FileName);
-                }
-            }
-            return new byte[0];
-        }
+       
 
         /// <summary>
         /// Counts the frequency of each byte in the file.
@@ -63,17 +44,20 @@ namespace zip
         /// 4. Add the node to the list.
         /// 5. Return the list of nodes.
         /// </algo>
-        public static List<Node> MakeDLL(uint[] freq)
+        public static Node MakeDLL(uint[] freq)
         {
-            List<Node> nodeList = new List<Node>();
+            Node head = null;
+
             for (int i = 0; i < 256; i++)
             {
                 if (freq[i] > 0)
                 {
-                    nodeList.Add(new Node((byte)i, freq[i])); // ? why without left and right?
+                    Node newNode = new Node((byte)i, freq[i]);
+                    HuffmanHelpers.InsertSorted(ref head, newNode); // insert in ascending order
                 }
             }
-            return nodeList;
+
+            return head; // return head of the DLL
         }
 
         /// <summary>
@@ -88,22 +72,26 @@ namespace zip
         /// 6. Add the parent node to the list.
         /// 7. Return the root node of the tree. (can be used to recreate the tree)
 
-        public static Node MakeTree(List<Node> nodes)
+        public static Node MakeTree(Node head)
         {
-            while (nodes.Count > 1)
+            while (head != null && head.Next != null)
             {
-                nodes.Sort((n1, n2) => (int)(n1.Frequency - n2.Frequency)); // ?
+                // Take first two nodes
+                Node left = head;
+                Node right = head.Next;
 
-                Node left = nodes[0];
-                Node right = nodes[1];
+                // Remove them from the DLL
+                head = right.Next;
+                if (head != null) head.Prev = null;
 
-                nodes.RemoveAt(0);
-                nodes.RemoveAt(0);
-
+                // Create new parent node
                 Node parent = new Node(left, right);
-                nodes.Add(parent);
+
+                // Insert back into sorted DLL
+                HuffmanHelpers.InsertSorted(ref head, parent);
             }
-            return nodes[0];
+
+            return head; // this is the root of the Huffman tree
         }
 
         /// <summary>
@@ -117,7 +105,9 @@ namespace zip
         public static Dictionary<byte, string> MakeTable(Node root)
         {
             Dictionary<byte, string> table = new Dictionary<byte, string>();
-            HuffmanHelpers.BuildTable(root, "", table); // ? why ""?
+
+            // Begin to build table from head of the tree (empty code because it's head of tree)
+            HuffmanHelpers.BuildTable(root, "", table);
             return table;
         }
 
@@ -150,6 +140,7 @@ namespace zip
                 string code = table[b];
                 foreach (char bit in code)
                 {
+                    // Add the bit to the list (true or false, so 1 or 0)
                     bitList.Add(bit == '1');
                 }
             }
@@ -160,6 +151,7 @@ namespace zip
             {
                 if (bitList[i])
                 {
+                    // Move bite in its place and save it in result
                     result[i / 8] |= (byte)(1 << (7 - (i % 8)));
                 }
             }

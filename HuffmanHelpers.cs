@@ -86,5 +86,56 @@ namespace zip
         }
 
         #endregion UNZIP
+
+        #region OtherHelpers
+
+        /// <summary>
+        /// Reads a file and returns its byte array.
+        /// </summary>
+        /// <algo>
+        /// 1. Open modal and let user select a file.
+        /// 2. If the user selects a file, read all bytes from the file.
+        /// 3. Return the byte array after reading the file. Otherwise, return an empty byte array.
+        /// </algo>
+        public static byte[] ReadFile()
+        {
+            using (OpenFileDialog ofd = new OpenFileDialog())
+            {
+                if (ofd.ShowDialog() == DialogResult.OK)
+                {
+                    return File.ReadAllBytes(ofd.FileName);
+                }
+            }
+            return new byte[0];
+        }
+
+        public static void InsertSorted(ref Node head, Node newNode)
+        {
+            if (head == null || newNode.Frequency < head.Frequency)
+            {
+                // Insert at the beginning
+                newNode.Next = head;
+                if (head != null) head.Prev = newNode;
+                head = newNode;
+                return;
+            }
+
+            Node current = head;
+            while (current.Next != null && current.Next.Frequency <= newNode.Frequency)
+            {
+                current = current.Next;
+            }
+
+            // Insert after current
+            newNode.Next = current.Next;
+            if (current.Next != null)
+            {
+                current.Next.Prev = newNode;
+            }
+            current.Next = newNode;
+            newNode.Prev = current;
+        }
+
+        #endregion
     }
 }

@@ -10,33 +10,31 @@ namespace zip
     {
         #region UNZIP
 
-        public static void UnzipFile()
+
+        public static byte[] UnzipFile(byte[] file)
         {
-            using (OpenFileDialog ofd = new OpenFileDialog())
+            using (BinaryReader reader = new BinaryReader(new MemoryStream(file)))
             {
-                ofd.Filter = "Huffman Compressed File|*.zip";
-                if (ofd.ShowDialog() == DialogResult.OK)
+                int treeLength = reader.ReadInt32(); // read first 4 bytes
+                byte[] treeData = reader.ReadBytes(treeLength); // read all tree with given tree length
+                byte[] fileData = reader.ReadBytes((int)(reader.BaseStream.Length - reader.BaseStream.Position));
+
+                Node root = HuffmanHelpers.RecreateTree(treeData);
+                byte[] original = RecreateFile(fileData, root);
+
+                return original;
+            }
+        }
+
+        public static void SaveFile(byte[] original)
+        {
+            using (SaveFileDialog sfd = new SaveFileDialog())
+            {
+                sfd.Title = "Save Uncompressed File";
+                if (sfd.ShowDialog() == DialogResult.OK)
                 {
-                    byte[] allData = File.ReadAllBytes(ofd.FileName);
-                    using (BinaryReader reader = new BinaryReader(new MemoryStream(allData)))
-                    {
-                        int treeLength = reader.ReadInt32();
-                        byte[] treeData = reader.ReadBytes(treeLength);
-                        byte[] fileData = reader.ReadBytes((int)(reader.BaseStream.Length - reader.BaseStream.Position));
-
-                        Node root = HuffmanHelpers.RecreateTree(treeData);
-                        byte[] original = RecreateFile(fileData, root);
-
-                        using (SaveFileDialog sfd = new SaveFileDialog())
-                        {
-                            sfd.Title = "Save Uncompressed File";
-                            if (sfd.ShowDialog() == DialogResult.OK)
-                            {
-                                File.WriteAllBytes(sfd.FileName, original);
-                                MessageBox.Show("Uncompressed and saved successfully.");
-                            }
-                        }
-                    }
+                    File.WriteAllBytes(sfd.FileName, original);
+                    MessageBox.Show("Uncompressed and saved successfully.");
                 }
             }
         }

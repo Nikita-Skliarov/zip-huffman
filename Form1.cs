@@ -9,14 +9,21 @@ namespace zip
             InitializeComponent();
         }
 
+        // TODO: MakeDLL make another way, make tree also 
+        // Then check if anything is wrong with new changes
         private void ZipButton_Click(object sender, EventArgs e)
         {
-            byte[] file = HuffmanZip.ReadFile();
+            byte[] file = HuffmanHelpers.ReadFile();
             if (file.Length == 0) return; // return if no file is selected or file is empty
 
             uint[] freq = HuffmanZip.CountBytes(file);
-            List<Node> nodeList = HuffmanZip.MakeDLL(freq);
-            Node treeTop = HuffmanZip.MakeTree(nodeList);
+
+            // NEW: MakeDLL now returns the head of a sorted doubly linked list
+            Node dllHead = HuffmanZip.MakeDLL(freq);
+
+            // NEW: MakeTree now works with DLL head
+            Node treeTop = HuffmanZip.MakeTree(dllHead);
+
             Dictionary<byte, string> table = HuffmanZip.MakeTable(treeTop);
             byte[] encodedFile = HuffmanZip.Translate(file, table);
             byte[] encodedTree = HuffmanZip.SaveTreeToBytes(treeTop);
@@ -25,7 +32,9 @@ namespace zip
 
         private void UnzipButton_Click(object sender, EventArgs e)
         {
-            HuffmanUnzip.UnzipFile();
+            byte[] file = HuffmanHelpers.ReadFile();
+            byte[] unzippedFile = HuffmanUnzip.UnzipFile(file);
+            HuffmanUnzip.SaveFile(unzippedFile);
         }
     }
 }
