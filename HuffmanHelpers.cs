@@ -109,6 +109,14 @@ namespace zip
             return new byte[0];
         }
 
+        /// <summary>
+        /// Insert Node in List in ASC order
+        /// </summary>
+        /// <algo>
+        /// 1. With given head, check first if new Node must be placed between head and next Node (at the beginning)
+        /// 2. If not, move through next Nodes and find place where it freq less than next one or it is end
+        /// 3. Place new Node in found place (if it is not end, link new Node with next Node also)
+        /// </algo>
         public static void InsertSorted(ref Node head, Node newNode)
         {
             if (head == null || newNode.Frequency < head.Frequency)
@@ -121,7 +129,7 @@ namespace zip
             }
 
             Node current = head;
-            while (current.Next != null && current.Next.Frequency <= newNode.Frequency)
+            while (current.Next != null && current.Next.Frequency < newNode.Frequency)
             {
                 current = current.Next;
             }
